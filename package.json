@@ -1,0 +1,23 @@
+{
+  "name": "@5mts/theme-utilities",
+  "version": "1.0.0",
+  "description": "Lightweight utility modules for WordPress themes",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./scroll-detector": "./src/scroll-detector.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/5mts/theme-utilities.git"
+  },
+  "keywords": [
+    "wordpress",
+    "theme",
+    "scroll",
+    "utilities"
+  ],
+  "author": "5MT Studio",
+  "license": "MIT"
+}
