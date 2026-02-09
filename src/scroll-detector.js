@@ -6,8 +6,9 @@
 const defaults = {
   // Thresholds
   hideAfterPx: 120,       // don't change scroll-dir to 'down' until scrolled this far
-  upIntentPx: 18,         // upward travel required before revealing (prevents jitter)
-  minDeltaPx: 2,          // ignore tiny movements
+  upIntentPx: 42,         // upward travel required before revealing (prevents jitter)
+  downIntentPx: 42,       // downward travel required before hiding (prevents jitter)
+  minDeltaPx: 20,          // ignore tiny movements
   edgeThresholdPx: 50,    // distance from top/bottom for at-top/at-bottom
   zoneThreshold: 0.5,     // viewport fraction for near-top/near-bottom
 
@@ -36,6 +37,7 @@ export function initScrollDetector(options = {}) {
 
   let lastY = window.scrollY || 0;
   let upIntentAccum = 0;
+  let downIntentAccum = 0;
   let ticking = false;
 
   const getScrollHeight = () => Math.max(
@@ -91,6 +93,7 @@ export function initScrollDetector(options = {}) {
     // Direction with intent detection
     if (cfg.scrollDir) {
       if (dir === 'up') {
+        downIntentAccum = 0;
         upIntentAccum += Math.abs(delta);
         if (upIntentAccum >= cfg.upIntentPx) {
           setState('scrollDir', 'up');
@@ -98,8 +101,12 @@ export function initScrollDetector(options = {}) {
       } else {
         upIntentAccum = 0;
         if (y > cfg.hideAfterPx) {
-          setState('scrollDir', 'down');
+          downIntentAccum += Math.abs(delta);
+          if (downIntentAccum >= cfg.downIntentPx) {
+            setState('scrollDir', 'down');
+          }
         } else {
+          downIntentAccum = 0;
           setState('scrollDir', 'up');
         }
       }
