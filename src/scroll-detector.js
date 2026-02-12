@@ -14,6 +14,7 @@ const defaults = {
 
   // Features (set to false to disable)
   scrollDir: true,
+  departingTop: true,
   atTop: true,
   atBottom: true,
   nearTop: true,
@@ -39,6 +40,8 @@ export function initScrollDetector(options = {}) {
   let upIntentAccum = 0;
   let downIntentAccum = 0;
   let ticking = false;
+  let currentScrollDir = 'up';
+  let hasBeenRevealed = false;
 
   const getScrollHeight = () => Math.max(
     document.body.scrollHeight,
@@ -88,6 +91,9 @@ export function initScrollDetector(options = {}) {
     // Ignore tiny movement / jitter
     if (Math.abs(delta) < cfg.minDeltaPx) return;
 
+    // Back at the top — reset so next departure is instant again
+    if (y <= cfg.edgeThresholdPx) hasBeenRevealed = false;
+
     const dir = delta > 0 ? 'down' : 'up';
 
     // Direction with intent detection
@@ -96,6 +102,10 @@ export function initScrollDetector(options = {}) {
         downIntentAccum = 0;
         upIntentAccum += Math.abs(delta);
         if (upIntentAccum >= cfg.upIntentPx) {
+          if (currentScrollDir !== 'up') {
+            currentScrollDir = 'up';
+            hasBeenRevealed = true;
+          }
           setState('scrollDir', 'up');
         }
       } else {
@@ -103,6 +113,9 @@ export function initScrollDetector(options = {}) {
         if (y > cfg.hideAfterPx) {
           downIntentAccum += Math.abs(delta);
           if (downIntentAccum >= cfg.downIntentPx) {
+            if (currentScrollDir !== 'down') {
+              currentScrollDir = 'down';
+            }
             setState('scrollDir', 'down');
           }
         } else {
@@ -110,6 +123,11 @@ export function initScrollDetector(options = {}) {
           setState('scrollDir', 'up');
         }
       }
+    }
+
+    // Departing top: true until the menu has been revealed by scrolling up
+    if (cfg.departingTop) {
+      setState('departingTop', !hasBeenRevealed);
     }
 
     // Position: at top or bottom edge
@@ -146,6 +164,7 @@ export function initScrollDetector(options = {}) {
     const zoneThresholdPx = viewportHeight * cfg.zoneThreshold;
 
     if (cfg.scrollDir) setState('scrollDir', 'up');
+    if (cfg.departingTop) setState('departingTop', true);
     if (cfg.atTop) setState('atTop', y <= cfg.edgeThresholdPx);
     if (cfg.atBottom) setState('atBottom', y >= maxScroll - cfg.edgeThresholdPx);
     if (cfg.nearTop) setState('nearTop', y < zoneThresholdPx);
@@ -160,6 +179,7 @@ export function initScrollDetector(options = {}) {
   return function destroy() {
     document.removeEventListener('scroll', onScroll);
     if (cfg.scrollDir) removeState('scrollDir');
+    if (cfg.departingTop) removeState('departingTop');
     if (cfg.atTop) removeState('atTop');
     if (cfg.atBottom) removeState('atBottom');
     if (cfg.nearTop) removeState('nearTop');
