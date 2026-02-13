@@ -4,8 +4,32 @@ Lightweight utility modules for WordPress themes.
 
 ## Installation
 
+**JavaScript** (npm):
+
 ```bash
 npm install github:5mts/theme-utilities
+```
+
+**PHP** (Composer):
+
+Add the repository to your theme's `composer.json`:
+
+```json
+{
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "git@github.com:5mts/theme-utilities.git",
+      "no-api": true
+    }
+  ]
+}
+```
+
+Then require the package:
+
+```bash
+composer require 5mts/theme-utilities:dev-main
 ```
 
 ## Modules
@@ -110,6 +134,50 @@ This adds classes like:
 
 .at-top .site-header {
   background: transparent;
+}
+```
+
+### SVG Logo Inliner (PHP)
+
+Replaces the Site Logo block's `<img>` with inline SVG markup server-side. This enables full CSS control over the logo (fill color, hover effects, transitions) with no flash of unstyled content and no JavaScript required.
+
+#### Usage
+
+In your theme's `functions.php`:
+
+```php
+use FiveMTS\ThemeUtilities\SvgLogoInliner;
+SvgLogoInliner::init();
+```
+
+That's it. When the Site Logo is an SVG, the block output will contain inline `<svg>` instead of `<img>`. If the logo is a PNG, JPG, or any other format, the block output is left unchanged.
+
+#### What It Does
+
+- Hooks into the `render_block_core/site-logo` filter
+- Reads the SVG file directly from disk (no extra HTTP request)
+- Copies `class`, `id`, and `style` attributes from the `<img>` to the `<svg>`
+- Sets `aria-label` from the image's `alt` text and adds `role="img"` for accessibility
+- Preserves the block's wrapping markup (`<div>`, `<a>`, etc.)
+
+#### CSS Examples
+
+```css
+/* Change logo color */
+.custom-logo {
+  fill: currentColor;
+  color: #333;
+}
+
+/* Logo color change on hover */
+.custom-logo:hover {
+  color: #0073aa;
+}
+
+/* Responsive logo sizing */
+.custom-logo {
+  width: 100%;
+  height: auto;
 }
 ```
 

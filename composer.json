@@ -1,0 +1,11 @@
+{
+  "name": "5mts/theme-utilities",
+  "description": "Lightweight utility modules for WordPress themes",
+  "type": "library",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "FiveMTS\\ThemeUtilities\\": "php/"
+    }
+  }
+}
